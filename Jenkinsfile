@@ -6,11 +6,12 @@ pipeline {
         IMAGE_TAG = "${GIT_COMMIT}"
         IMAGE = "${IMAGE_REPOSITORY}:${IMAGE_TAG}"
     }
-    
+
     stages {
 
         stage('Checkout') {
             steps {
+                cleanWs()
                 checkout scm
             }
         }
