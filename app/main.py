@@ -16,7 +16,8 @@ class Order(BaseModel):
 def health():
     return {
         "status": "healthy",
-        "version": VERSION
+        "version": VERSION,
+        "environment": "dev"
     }
 
 
