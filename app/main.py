@@ -15,7 +15,7 @@ class Order(BaseModel):
 @app.get("/health")
 def health():
     return {
-        "message": "Service is healthy",
+        "message": "Service is very healthy",
         "status": "healthy",
         "version": VERSION,
         "environment": "dev"
