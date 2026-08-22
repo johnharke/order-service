@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*.*.*' # Triggers on semantic version tags, e.g. v1.0.0
 
 permissions:
   contents: read
@@ -23,12 +25,20 @@ jobs:
           python-version: "3.13"
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements-dev.txt
+        run: pip install -r requirements-dev.txt
 
       - name: Run tests
-        run: |
-          pytest
+        run: pytest
+
+      - name: Extract Metadata (Tags/Labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=sha,prefix=
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -37,12 +47,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build image
-        run: |
-          docker build \
-            -t ghcr.io/${{ github.repository }}:${{ github.sha }} .
-
-      - name: Push image
-        run: |
-          docker push \
-            ghcr.io/${{ github.repository }}:${{ github.sha }}
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
